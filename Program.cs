@@ -21,7 +21,7 @@ namespace dradis
             if (type == MessageType.SourceLine)
             {
                 var args = (Tuple<int, string>)msg.Args;
-                Console.WriteLine(String.Format("{0,-3} {1}", args.Item1, args.Item2));
+                Console.WriteLine("{0,-3} {1}", args.Item1, args.Item2);
             }
         }
     }
@@ -38,14 +38,14 @@ namespace dradis
             if (type == MessageType.ParserSummary)
             {
                 var args = (Tuple<int, int, double>)msg.Args;
-                Console.WriteLine(String.Format(PARSER_SUMMARY_FORMAT, args.Item1, args.Item2, args.Item3));
+                Console.WriteLine(PARSER_SUMMARY_FORMAT, args.Item1, args.Item2, args.Item3);
             } else if (type == MessageType.Token)
             {
                 var args = (Tuple<int, int, TokenType, string, object>)msg.Args;
-                Console.WriteLine(String.Format(PARSER_TOKEN_FORMAT, args.Item3.ToString(), args.Item1, args.Item2, args.Item4));
+                Console.WriteLine(PARSER_TOKEN_FORMAT, args.Item3.ToString(), args.Item1, args.Item2, args.Item4);
                 if (args.Item5 != null)
                 {
-                    Console.WriteLine(String.Format(PARSER_VALUE_FORMAT, args.Item5.ToString()));
+                    Console.WriteLine(PARSER_VALUE_FORMAT, args.Item5.ToString());
                 }
             } else if (type == MessageType.SyntaxError)
             {
@@ -68,22 +68,82 @@ namespace dradis
     {
         static void Main(string[] args)
         {
-            StreamReader reader = new StreamReader(args[0]);
+            bool show_help = false;
+            bool xref = false;
+            var names = new List<string>();
 
-            SourceMessageObserver sourceObserver = new SourceMessageObserver();
-            Source source = new Source(reader);
-            source.Add(sourceObserver);
+            var p = new OptionSet()
+            {
+                { "h|help", "show this message and exit", v => show_help = v != null },
+                { "x|xref", "perform a cross-reference of identifiers", v => xref = v != null },
+            };
 
-            Scanner scanner = new Scanner(source);
-            Parser parser = new Parser(scanner);
-            ParserMessageObserver parserObserver = new ParserMessageObserver();
-            parser.Add(parserObserver);
+            List<string> extra;
+            try
+            {
+                extra = p.Parse(args);
+            }
+            catch (OptionException option_exception)
+            {
+                Console.Write("dradis: ");
+                Console.WriteLine(option_exception.Message);
+                Console.WriteLine("Try `dradis --help' for more information.");
+                return;
+            }
 
-            var result = parser.Parse();
-            ICode icode = result.Item1;
-            SymbolTableStack symtabstack = result.Item2;
+            if (show_help)
+            {
+                ShowHelp(p);
+                return;
+            }
 
-            reader.Close();
+            if (extra.Count == 0)
+            {
+                Console.WriteLine("dradis: ");
+                Console.WriteLine("No source file given.");
+                Console.WriteLine("Try `dradis --help' for more information.");
+                return;
+            }
+
+            string source_path = extra[0];
+            try
+            {
+                using (StreamReader reader = new StreamReader(source_path))
+                {
+                    SourceMessageObserver sourceObserver = new SourceMessageObserver();
+                    Source source = new Source(reader);
+                    source.Add(sourceObserver);
+
+                    Scanner scanner = new Scanner(source);
+                    Parser parser = new Parser(scanner);
+                    ParserMessageObserver parserObserver = new ParserMessageObserver();
+                    parser.Add(parserObserver);
+
+                    var result = parser.Parse();
+                    ICode icode = result.Item1;
+                    SymbolTableStack symtabstack = result.Item2;
+
+                    if (xref)
+                    {
+                        XRef.Print(symtabstack);
+                    }
+                }
+            } catch(Exception ex)
+            {
+                Console.WriteLine("dradis: ");
+                Console.WriteLine("FATAL ERROR: " + ex.Message);
+                Console.WriteLine("Try `dradis --help' for more information.");
+            }
+        }
+
+        private static void ShowHelp(OptionSet p)
+        {
+            Console.WriteLine("Usage: dradis [OPTIONS]+ file");
+            Console.WriteLine("Check a pascal source file for invalid tokens. You can also");
+            Console.WriteLine("perform a cross-reference of all identifier tokens.");
+            Console.WriteLine();
+            Console.WriteLine("Options: ");
+            p.WriteOptionDescriptions(Console.Out);
         }
     }
 }
