@@ -46,7 +46,7 @@ namespace dradis.intermediate
         public SymbolTableEntry FindInLocal(string name)
         {
             var table = GetLocal();
-            return table.CreateEntry(name);
+            return table.FindEntry(name);
         }
 
         public SymbolTableEntry Find(string name)
@@ -86,7 +86,7 @@ namespace dradis.intermediate
 
         public List<SymbolTableEntry> GetEntries()
         {
-            return entries.Values.ToList();
+            return entries.Values.OrderBy( e => e.Name ).ToList();
         }
     }
 
