@@ -23,34 +23,35 @@ namespace dradis.frontend
         public Tuple<ICode, SymbolTableStack> Parse()
         {
             var symtabstack = SymbolTableFactory.CreateStack();
+            var icode = ICodeFactory.CreateICode();
             var start = DateTime.Now;
-            Token token;
             try
             {
-                do
+                Token token = scanner.GetNextToken();
+                ICodeNode root = null;
+
+                // look for the BEGIN token to parse a compound statement.
+                if (token.TokenType == TokenType.BEGIN)
                 {
-                    token = scanner.GetNextToken();
-                    string lname = token.Lexeme.ToLower();
-                    if (token.TokenType != TokenType.ERROR)
-                    {
-                        var tkmsgargs = Tuple.Create(token.LineNumber, token.Position, token.TokenType, token.Lexeme, token.Value);
-                        Message tkmsg = new Message(MessageType.Token, tkmsgargs);
-                        Send(tkmsg);
-                        if (token.TokenType == TokenType.IDENTIFIER)
-                        {
-                            var entry = symtabstack.FindInLocal(lname);
-                            if (entry == null)
-                            {
-                                entry = symtabstack.CreateInLocal(lname);
-                            }
-                            entry.AppendLine(token.LineNumber);
-                        }
-                    }
-                    else 
-                    {
-                        ErrorHandler.Flag(token, (ErrorCode)token.Value, this);
-                    }
-                } while (token.IsEof == false);
+                    StatementParser statement_parser = new StatementParser(scanner, symtabstack);
+                    root = statement_parser.Parse(token);
+                    token = scanner.CurrentToken;
+                } else
+                {
+                    ErrorHandler.Flag(token, ErrorCode.UNEXPECTED_TOKEN, this);
+                }
+
+                // look for the final period.
+                if (token.TokenType != TokenType.DOT)
+                {
+                    ErrorHandler.Flag(token, ErrorCode.MISSING_PERIOD, this);
+                }
+
+                token = scanner.CurrentToken;
+                if (root != null)
+                {
+                    icode.Root = root;
+                }
 
                 var end = DateTime.Now;
                 double elapsedTime = (end - start).Ticks / (1.0 * TimeSpan.TicksPerSecond);
@@ -62,7 +63,7 @@ namespace dradis.frontend
                 Console.WriteLine(e.Message);
                 ErrorHandler.AbortTranslation(ErrorCode.IO_ERROR, this);
             }
-            return Tuple.Create((ICode)null, symtabstack);
+            return Tuple.Create(icode, symtabstack);
         }
     }
 }

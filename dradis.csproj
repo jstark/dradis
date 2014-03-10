@@ -60,11 +60,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="frontend\AssignmentStatementParser.cs" />
+    <Compile Include="frontend\CompoundStatementParser.cs" />
     <Compile Include="frontend\ErrorCode.cs" />
     <Compile Include="frontend\ErrorHandler.cs" />
+    <Compile Include="frontend\ExpressionParser.cs" />
     <Compile Include="frontend\Parser.cs" />
     <Compile Include="frontend\Scanner.cs" />
     <Compile Include="frontend\Source.cs" />
+    <Compile Include="frontend\StatementParser.cs" />
     <Compile Include="frontend\Token.cs" />
     <Compile Include="intermediate\ICode.cs" />
     <Compile Include="intermediate\SymbolTable.cs" />
