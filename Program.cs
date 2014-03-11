@@ -70,12 +70,14 @@ namespace dradis
         {
             bool show_help = false;
             bool xref = false;
+            bool print_ast = false;
             var names = new List<string>();
 
             var p = new OptionSet()
             {
                 { "h|help", "show this message and exit", v => show_help = v != null },
                 { "x|xref", "perform a cross-reference of identifiers", v => xref = v != null },
+                { "i|intermediate", "print the parse tree of the input", v => print_ast = v != null }
             };
 
             List<string> extra;
@@ -126,6 +128,12 @@ namespace dradis
                     if (xref)
                     {
                         XRef.Print(symtabstack);
+                    }
+
+                    if (print_ast)
+                    {
+                        ParseTreePrinter printer = new ParseTreePrinter(Console.Out);
+                        printer.Print(icode);
                     }
                 }
             } catch(Exception ex)
