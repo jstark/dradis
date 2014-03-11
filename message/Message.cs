@@ -35,7 +35,7 @@ namespace dradis.message
 
     public class MessageProducer
     {
-        private List<IMessageObserver> observers;
+        protected List<IMessageObserver> observers;
 
         public MessageProducer()
         {

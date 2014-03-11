@@ -15,7 +15,7 @@ namespace dradis.frontend
         private Scanner scanner;
         private SymbolTableStack symtabstack;
 
-        public AssignmentStatementParser(Scanner s, SymbolTableStack stack)
+        private AssignmentStatementParser(Scanner s, SymbolTableStack stack)
         {
             scanner = s;
             symtabstack = stack;
@@ -57,10 +57,20 @@ namespace dradis.frontend
 
             // parse the expression. The ASSIGN node adopts the expression's node
             // as its second child.
-            ExpressionParser exp_parser = new ExpressionParser(scanner, symtabstack);
+            ExpressionParser exp_parser = ExpressionParser.CreateWithObservers(scanner, symtabstack, observers);
             assign_node.Add(exp_parser.Parse(token));
 
             return assign_node;
+        }
+
+        public static AssignmentStatementParser CreateWithObservers(Scanner s, SymbolTableStack stack, List<IMessageObserver> obl)
+        {
+            var assign_parser = new AssignmentStatementParser(s, stack);
+
+            foreach (var o in obl)
+                assign_parser.Add(o);
+
+            return assign_parser;
         }
     }
 }

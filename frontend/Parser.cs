@@ -33,8 +33,8 @@ namespace dradis.frontend
                 // look for the BEGIN token to parse a compound statement.
                 if (token.TokenType == TokenType.BEGIN)
                 {
-                    StatementParser statement_parser = new StatementParser(scanner, symtabstack);
-                    root = statement_parser.Parse(token);
+                    StatementParser stmnt_parser = StatementParser.CreateWithObservers(scanner, symtabstack, observers);
+                    root = stmnt_parser.Parse(token);
                     token = scanner.CurrentToken;
                 } else
                 {

@@ -14,7 +14,7 @@ namespace dradis.frontend
         private Scanner scanner;
         private SymbolTableStack symtabstack;
 
-        public StatementParser(Scanner s, SymbolTableStack stack)
+        private StatementParser(Scanner s, SymbolTableStack stack)
         {
             scanner = s;
             symtabstack = stack;
@@ -26,11 +26,11 @@ namespace dradis.frontend
             switch (token.TokenType)
             {
                 case TokenType.BEGIN:
-                    CompoundStatementParser compound_parser = new CompoundStatementParser(scanner, symtabstack);
-                    node = compound_parser.Parse(token);
+                    CompoundStatementParser cmpnd_parser = CompoundStatementParser.CreateWithObservers(scanner, symtabstack, observers);
+                    node = cmpnd_parser.Parse(token);
                     break;
                 case TokenType.IDENTIFIER:
-                    AssignmentStatementParser assign_parser = new AssignmentStatementParser(scanner, symtabstack);
+                    AssignmentStatementParser assign_parser = AssignmentStatementParser.CreateWithObservers(scanner, symtabstack, observers);
                     node = assign_parser.Parse(token);
                     break;
                 default:
@@ -50,7 +50,7 @@ namespace dradis.frontend
                 // parse a statement. The parent node adopts the statement node.
                 ICodeNode statement_node = Parse(token);
                 parent.Add(statement_node);
-                token = scanner.GetNextToken();
+                token = scanner.CurrentToken;
 
                 // look for the semicolon between the statements.
                 if (token.TokenType == TokenType.SEMICOLON)
@@ -76,6 +76,16 @@ namespace dradis.frontend
             {
                 ErrorHandler.Flag(token, error, this);
             }
+        }
+
+        public static StatementParser CreateWithObservers(Scanner s, SymbolTableStack stack, List<IMessageObserver> obl)
+        {
+            var stmnt_parser = new StatementParser(s, stack);
+
+            foreach (var o in obl)
+                stmnt_parser.Add(o);
+
+            return stmnt_parser;
         }
 
         private void SetLineNumber(ICodeNode node, int line)

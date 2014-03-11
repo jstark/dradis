@@ -70,7 +70,7 @@ namespace dradis.frontend
             };
         }
 
-        public ExpressionParser(Scanner s, SymbolTableStack stack)
+        private ExpressionParser(Scanner s, SymbolTableStack stack)
         {
             scanner = s;
             symtabstack = stack;
@@ -87,7 +87,7 @@ namespace dradis.frontend
             // root node.
             ICodeNode root = ParseSimpleExpression(token);
 
-            token = scanner.GetNextToken();
+            token = scanner.CurrentToken;
             if (REL_OPS.Contains(token.TokenType))
             {
                 // create a new operator node and adopt the current tree
@@ -106,6 +106,18 @@ namespace dradis.frontend
                 root = op_node;
             }
             return root;
+        }
+
+        public static ExpressionParser CreateWithObservers(Scanner s, SymbolTableStack stack, List<IMessageObserver> obl)
+        {
+            var expr_parser = new ExpressionParser(s, stack);
+
+            foreach (var o in obl)
+            {
+                expr_parser.Add(o);
+            }
+
+            return expr_parser;
         }
 
         private ICodeNode ParseSimpleExpression(Token token)
@@ -177,6 +189,7 @@ namespace dradis.frontend
 
                 // the operator node becomes the new root node.
                 root = op_node;
+                token = scanner.CurrentToken;
             }
             return root;
         }
