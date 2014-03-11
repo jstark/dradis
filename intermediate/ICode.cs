@@ -52,8 +52,11 @@ namespace dradis.intermediate
         public ICodeNode Add(ICodeNode node)
         {
             Contract.Requires(!children.Contains(node));
-            children.Add(node);
-            node.Parent = this;
+            if (node != null)
+            {
+                children.Add(node);
+                node.Parent = this;
+            }
             return node;
         }
 
@@ -61,6 +64,14 @@ namespace dradis.intermediate
         {
             var tmp = new List<ICodeNode>(children);
             return tmp;
+        }
+
+        public void ForeachAttribute(Action<ICodeKey, object> action)
+        {
+            foreach(var p in attributes)
+            {
+                action(p.Key, p.Value);
+            }
         }
 
         public void SetAttribute(ICodeKey key, object val)
@@ -73,6 +84,11 @@ namespace dradis.intermediate
             object val = null;
             attributes.TryGetValue(key, out val);
             return val;
+        }
+
+        public override string ToString()
+        {
+            return Type.ToString();
         }
     }
 
