@@ -60,13 +60,13 @@ namespace dradis.intermediate
     {
         private Dictionary<string, SymbolTableEntry> entries;
 
-        public SymbolTable(uint nest_level)
+        public SymbolTable(int nest_level)
         {
             entries = new Dictionary<string, SymbolTableEntry>();
             NestingLevel = nest_level;
         }
 
-        public uint NestingLevel { get; private set; }
+        public int NestingLevel { get; private set; }
 
         public SymbolTableEntry CreateEntry(string name)
         {
@@ -140,7 +140,7 @@ namespace dradis.intermediate
             return new SymbolTableStack();
         }
 
-        public static SymbolTable CreateTable(uint level)
+        public static SymbolTable CreateTable(int level)
         {
             return new SymbolTable(level);
         }
