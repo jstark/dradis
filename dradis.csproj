@@ -71,6 +71,7 @@
     <Compile Include="frontend\StatementParser.cs" />
     <Compile Include="frontend\Token.cs" />
     <Compile Include="intermediate\ICode.cs" />
+    <Compile Include="intermediate\ParseTreePrinter.cs" />
     <Compile Include="intermediate\SymbolTable.cs" />
     <Compile Include="intermediate\XRef.cs" />
     <Compile Include="message\Message.cs" />
