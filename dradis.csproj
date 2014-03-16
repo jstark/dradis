@@ -60,6 +60,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="backend\Backend.cs" />
+    <Compile Include="backend\Compiler.cs" />
+    <Compile Include="backend\Interpreter.cs" />
     <Compile Include="frontend\AssignmentStatementParser.cs" />
     <Compile Include="frontend\CompoundStatementParser.cs" />
     <Compile Include="frontend\ErrorCode.cs" />

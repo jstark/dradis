@@ -9,6 +9,7 @@ using NDesk.Options;
 using dradis.frontend;
 using dradis.intermediate;
 using dradis.message;
+using dradis.backend;
 
 namespace dradis
 {
@@ -64,6 +65,33 @@ namespace dradis
         }
     }
 
+    sealed class BackendMessageObserver : IMessageObserver
+    {
+        private const string INTERPRETER_SUMMARY_FORMAT = "\n{0,20} statements executed \n{1, 20} runtime errors \n{2,20:0.00} seconds total execution time.";
+        private const string COMPILER_SUMMARY_FORMAT = "\n{0,20} instructions generated \n{1,20:0.00} seconds total generation time.";
+
+        public void AcceptMessage(Message msg)
+        {
+            switch (msg.Type)
+            {
+                case MessageType.InterpreterSummary:
+                    {
+                        var args = (Tuple<int, int, double>)msg.Args;
+                        Console.WriteLine(INTERPRETER_SUMMARY_FORMAT, args.Item1, args.Item2, args.Item3);
+                    }
+                    break;
+                case MessageType.CompilerSummary:
+                    {
+                        var args = (Tuple<int, double>)msg.Args;
+                        Console.WriteLine(COMPILER_SUMMARY_FORMAT, args.Item1, args.Item2);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
@@ -71,13 +99,15 @@ namespace dradis
             bool show_help = false;
             bool xref = false;
             bool print_ast = false;
+            string action = "compile";
             var names = new List<string>();
 
             var p = new OptionSet()
             {
                 { "h|help", "show this message and exit", v => show_help = v != null },
                 { "x|xref", "perform a cross-reference of identifiers", v => xref = v != null },
-                { "i|intermediate", "print the parse tree of the input", v => print_ast = v != null }
+                { "i|intermediate", "print the parse tree of the input", v => print_ast = v != null },
+                { "a|action", "`compile' or `interpret' the input", v => action = v },
             };
 
             List<string> extra;
@@ -135,6 +165,14 @@ namespace dradis
                         ParseTreePrinter printer = new ParseTreePrinter(Console.Out);
                         printer.Print(icode);
                     }
+
+                    Backend backend = Backend.Create(action);
+                    if (backend == null)
+                    {
+                        throw new Exception("`action' can be either `compile' or 'interpret'!");
+                    }
+                    backend.Add(new BackendMessageObserver());
+                    backend.Process(icode, symtabstack);
                 }
             } catch(Exception ex)
             {
@@ -147,8 +185,9 @@ namespace dradis
         private static void ShowHelp(OptionSet p)
         {
             Console.WriteLine("Usage: dradis [OPTIONS]+ file");
-            Console.WriteLine("Check a pascal source file for invalid tokens. You can also");
-            Console.WriteLine("perform a cross-reference of all identifier tokens.");
+            Console.WriteLine("Implemented functionality:");
+            Console.WriteLine("1. Checks a pascal source file for invalid tokens.");
+            Console.WriteLine("2. Perform a cross-reference of all IDENTIFIER tokens.");
             Console.WriteLine();
             Console.WriteLine("Options: ");
             p.WriteOptionDescriptions(Console.Out);
