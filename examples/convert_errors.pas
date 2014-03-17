@@ -1,9 +1,6 @@
 BEGIN
-    a := 10 + ;
-END.
-BEGIN
     BEGIN { Temperature conversions. }
-        five := -1 + 2 - 3 + 4 - -3;
+        five := -1 + 2 - 3 + 4 + 3;
         ratio := five/9.0;
 
         fahr := 72;

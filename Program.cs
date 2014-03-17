@@ -69,6 +69,9 @@ namespace dradis
     {
         private const string INTERPRETER_SUMMARY_FORMAT = "\n{0,20} statements executed \n{1, 20} runtime errors \n{2,20:0.00} seconds total execution time.";
         private const string COMPILER_SUMMARY_FORMAT = "\n{0,20} instructions generated \n{1,20:0.00} seconds total generation time.";
+        private const string ASSIGN_FORMAT = " >>> LINE {0, 3}: {1} = {2}";
+
+        private bool first_output_msg = true;
 
         public void AcceptMessage(Message msg)
         {
@@ -86,6 +89,32 @@ namespace dradis
                         Console.WriteLine(COMPILER_SUMMARY_FORMAT, args.Item1, args.Item2);
                     }
                     break;
+                case MessageType.Assign:
+                    {
+                        if (first_output_msg)
+                        {
+                            Console.WriteLine("\n===== OUTPUT =====\n");
+                            first_output_msg = false;
+                        }
+
+                        var args = (Tuple<int, string, object>)msg.Args;
+                        int line_number = args.Item1;
+                        string variable = args.Item2;
+                        object value = args.Item3;
+                        Console.WriteLine(ASSIGN_FORMAT, line_number, variable, value);
+                        break;
+                    }
+                case MessageType.RuntimeError:
+                    {
+                        var args = (Tuple<string, int>)msg.Args;
+                        string error_msg = args.Item1;
+                        int line_number = args.Item2;
+
+                        Console.Write("*** RUNTIME ERROR");
+                        Console.WriteLine(" AT LINE {0,3}", line_number);
+                        Console.WriteLine(": {0}", error_msg);
+                        break;
+                    }
                 default:
                     break;
             }
@@ -99,7 +128,7 @@ namespace dradis
             bool show_help = false;
             bool xref = false;
             bool print_ast = false;
-            string action = "compile";
+            string action = "interpret";
             var names = new List<string>();
 
             var p = new OptionSet()
