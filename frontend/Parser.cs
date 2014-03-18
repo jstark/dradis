@@ -65,5 +65,26 @@ namespace dradis.frontend
             }
             return Tuple.Create(icode, symtabstack);
         }
+
+        public Token Synchronize(HashSet<TokenType> types)
+        {
+            Token tok = scanner.CurrentToken;
+
+            // if the current token is not in the synchronization set
+            // then it is unexpected and the parser must recover.
+            if (!types.Contains(tok.TokenType))
+            {
+                // flag the unexpected token
+                ErrorHandler.Flag(tok, ErrorCode.UNEXPECTED_TOKEN, this);
+
+                // recover by skipping tokens that are not in 
+                // the synchronization set.
+                do
+                {
+                    tok = scanner.GetNextToken();
+                } while (!tok.IsEof && !types.Contains(tok.TokenType));
+            }
+            return tok;
+        }
     }
 }
