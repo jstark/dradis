@@ -111,7 +111,7 @@ namespace dradis
                         int line_number = args.Item2;
 
                         Console.Write("*** RUNTIME ERROR");
-                        Console.WriteLine(" AT LINE {0,3}", line_number);
+                        Console.Write(" AT LINE {0,3}", line_number);
                         Console.WriteLine(": {0}", error_msg);
                         break;
                     }

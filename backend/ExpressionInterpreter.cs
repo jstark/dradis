@@ -184,7 +184,7 @@ namespace dradis.backend
                             }
                     }
                 }
-            } else if (node.Type == ICodeNodeType.ADD || node.Type == ICodeNodeType.OR)
+            } else if (node.Type == ICodeNodeType.AND || node.Type == ICodeNodeType.OR)
             {
                 bool value1 = (bool)operand1;
                 bool value2 = (bool)operand2;
