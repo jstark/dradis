@@ -10,18 +10,19 @@ using System.Diagnostics.Contracts;
 
 namespace dradis.frontend
 {
-    public class AssignmentStatementParser : MessageProducer
+    public class AssignmentStatementParser : NonTerminalParser
     {
-        private Scanner scanner;
-        private SymbolTableStack symtabstack;
+        internal static HashSet<TokenType> COLON_EQUALS_SET;
 
-        private AssignmentStatementParser(Scanner s, SymbolTableStack stack)
+        static AssignmentStatementParser()
         {
-            scanner = s;
-            symtabstack = stack;
+            COLON_EQUALS_SET = new HashSet<TokenType>();
+            COLON_EQUALS_SET.Add(TokenType.COLON_EQUALS);
+            COLON_EQUALS_SET.UnionWith(ExpressionParser.EXPR_START_SET);
+            COLON_EQUALS_SET.UnionWith(StatementParser.STMT_FOLLOW_SET);
         }
 
-        public ICodeNode Parse(Token token)
+        public override ICodeNode Parse(Token token)
         {
             // create the ASSIGN node
             ICodeNode assign_node = ICodeFactory.CreateICodeNode(ICodeNodeType.ASSIGN);
@@ -29,15 +30,15 @@ namespace dradis.frontend
             // lookup up the target identifier in the symbol table stack.
             // enter the identifier into the table if it's not found.
             string target_name = token.Lexeme.ToLower();
-            SymbolTableEntry target_id = symtabstack.FindInLocal(target_name);
+            SymbolTableEntry target_id = SymTabStack.FindInLocal(target_name);
             if (target_id == null)
             {
-                target_id = symtabstack.CreateInLocal(target_name);
+                target_id = SymTabStack.CreateInLocal(target_name);
             }
             target_id.AppendLine(token.LineNumber);
 
             Contract.Requires(token.TokenType == TokenType.IDENTIFIER);
-            token = scanner.GetNextToken(); // consume the identifier token
+            token = InternalScanner.GetNextToken(); // consume the identifier token
 
             // create the variable node and set its name attribute.
             ICodeNode variable_node = ICodeFactory.CreateICodeNode(ICodeNodeType.VARIABLE);
@@ -46,10 +47,13 @@ namespace dradis.frontend
             // the assign node adopts the variable node as its first child.
             assign_node.Add(variable_node);
 
+            // synchronize on the := token.
+            token = Parser.Synchronize(COLON_EQUALS_SET, InternalScanner, this);
+
             // look for the := token
             if (token.TokenType == TokenType.COLON_EQUALS)
             {
-                token = scanner.GetNextToken(); // consume the :=
+                token = InternalScanner.GetNextToken(); // consume the :=
             } else
             {
                 ErrorHandler.Flag(token, ErrorCode.MISSING_COLON_EQUALS, this);
@@ -57,7 +61,7 @@ namespace dradis.frontend
 
             // parse the expression. The ASSIGN node adopts the expression's node
             // as its second child.
-            ExpressionParser exp_parser = ExpressionParser.CreateWithObservers(scanner, symtabstack, observers);
+            ExpressionParser exp_parser = ExpressionParser.CreateWithObservers(InternalScanner, SymTabStack, observers);
             assign_node.Add(exp_parser.Parse(token));
 
             return assign_node;
@@ -65,12 +69,7 @@ namespace dradis.frontend
 
         public static AssignmentStatementParser CreateWithObservers(Scanner s, SymbolTableStack stack, List<IMessageObserver> obl)
         {
-            var assign_parser = new AssignmentStatementParser(s, stack);
-
-            foreach (var o in obl)
-                assign_parser.Add(o);
-
-            return assign_parser;
+            return NonTerminalParser.CreateWithObserver<AssignmentStatementParser>(s, stack, obl);
         }
     }
 }
