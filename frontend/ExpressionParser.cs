@@ -9,20 +9,30 @@ using dradis.message;
 
 namespace dradis.frontend
 {
-    public class ExpressionParser : MessageProducer
+    public class ExpressionParser : NonTerminalParser
     {
+        internal static HashSet<TokenType> EXPR_START_SET;
+
         private static readonly HashSet<TokenType> REL_OPS;
         private static readonly Dictionary<TokenType, ICodeNodeType> REL_OPS_MAP;
         private static readonly HashSet<TokenType> ADD_OPS;
         private static readonly Dictionary<TokenType, ICodeNodeType> ADD_OPS_OPS_MAP;
         private static readonly HashSet<TokenType> MUL_OPS;
         private static readonly Dictionary<TokenType, ICodeNodeType> MUL_OPS_OPS_MAP;
-        //
-        private Scanner scanner;
-        private SymbolTableStack symtabstack;
 
         static ExpressionParser()
         {
+            EXPR_START_SET = new HashSet<TokenType>();
+            EXPR_START_SET.Add(TokenType.PLUS);
+            EXPR_START_SET.Add(TokenType.MINUS);
+            EXPR_START_SET.Add(TokenType.IDENTIFIER);
+            EXPR_START_SET.Add(TokenType.INTEGER);
+            EXPR_START_SET.Add(TokenType.REAL);
+            EXPR_START_SET.Add(TokenType.STRING);
+            EXPR_START_SET.Add(TokenType.NOT);
+            EXPR_START_SET.Add(TokenType.LEFT_PAREN);
+
+            //
             REL_OPS = new HashSet<TokenType>();
             REL_OPS.Add(TokenType.EQUALS);
             REL_OPS.Add(TokenType.NOT_EQUALS);
@@ -70,13 +80,7 @@ namespace dradis.frontend
             };
         }
 
-        private ExpressionParser(Scanner s, SymbolTableStack stack)
-        {
-            scanner = s;
-            symtabstack = stack;
-        }
-
-        public ICodeNode Parse(Token token)
+        public override ICodeNode Parse(Token token)
         {
             return ParseExpression(token);
         }
@@ -87,7 +91,7 @@ namespace dradis.frontend
             // root node.
             ICodeNode root = ParseSimpleExpression(token);
 
-            token = scanner.CurrentToken;
+            token = InternalScanner.CurrentToken;
             if (REL_OPS.Contains(token.TokenType))
             {
                 // create a new operator node and adopt the current tree
@@ -96,7 +100,7 @@ namespace dradis.frontend
                 ICodeNode op_node = ICodeFactory.CreateICodeNode(type);
                 op_node.Add(root);
 
-                token = scanner.GetNextToken(); // consume the operator
+                token = InternalScanner.GetNextToken(); // consume the operator
 
                 // parse the second simple expression. The operator node adopts
                 // the simple expression's tree as its second child.
@@ -110,14 +114,7 @@ namespace dradis.frontend
 
         public static ExpressionParser CreateWithObservers(Scanner s, SymbolTableStack stack, List<IMessageObserver> obl)
         {
-            var expr_parser = new ExpressionParser(s, stack);
-
-            foreach (var o in obl)
-            {
-                expr_parser.Add(o);
-            }
-
-            return expr_parser;
+            return NonTerminalParser.CreateWithObserver<ExpressionParser>(s, stack, obl);
         }
 
         private ICodeNode ParseSimpleExpression(Token token)
@@ -128,7 +125,7 @@ namespace dradis.frontend
             if (token.TokenType == TokenType.PLUS || token.TokenType == TokenType.MINUS)
             {
                 sign = token.TokenType;
-                token = scanner.GetNextToken(); // consume + or -
+                token = InternalScanner.GetNextToken(); // consume + or -
             }
 
             // parse a term and make the root of its tree the root node/
@@ -144,7 +141,7 @@ namespace dradis.frontend
                 root = negate;
             }
 
-            token = scanner.CurrentToken;
+            token = InternalScanner.CurrentToken;
 
             // loop over additive operators
             while (ADD_OPS.Contains(token.TokenType))
@@ -154,7 +151,7 @@ namespace dradis.frontend
                 ICodeNode op_node = ICodeFactory.CreateICodeNode(op_type);
                 op_node.Add(root);
 
-                token = scanner.GetNextToken(); // consume the operator
+                token = InternalScanner.GetNextToken(); // consume the operator
 
                 // parse another term. The operator node adopts
                 // the term's tree as its second child.
@@ -162,7 +159,7 @@ namespace dradis.frontend
 
                 // the operator node becomes the new root node.
                 root = op_node;
-                token = scanner.CurrentToken;
+                token = InternalScanner.CurrentToken;
             }
             return root;
         }
@@ -172,7 +169,7 @@ namespace dradis.frontend
             // parse a factor and make its node the root node.
             ICodeNode root = ParseFactor(token);
 
-            token = scanner.CurrentToken;
+            token = InternalScanner.CurrentToken;
             while (MUL_OPS.Contains(token.TokenType))
             {
                 // create a new operator node and adopt the current tree
@@ -181,7 +178,7 @@ namespace dradis.frontend
                 ICodeNode op_node = ICodeFactory.CreateICodeNode(op);
                 op_node.Add(root);
 
-                token = scanner.GetNextToken(); // consume the operator
+                token = InternalScanner.GetNextToken(); // consume the operator
 
                 // parse another factor. The operator node adopts
                 // the term's tree as its second child.
@@ -189,7 +186,7 @@ namespace dradis.frontend
 
                 // the operator node becomes the new root node.
                 root = op_node;
-                token = scanner.CurrentToken;
+                token = InternalScanner.CurrentToken;
             }
             return root;
         }
@@ -205,39 +202,39 @@ namespace dradis.frontend
                         // look the identifier in the symbol table stack. 
                         // flag the identifier as undefined if it's not found.
                         string name = token.Lexeme.ToLower();
-                        SymbolTableEntry id = symtabstack.Find(name);
+                        SymbolTableEntry id = SymTabStack.Find(name);
                         if (id == null)
                         {
                             ErrorHandler.Flag(token, ErrorCode.IDENTIFIER_UNDEFINED, this);
-                            id = symtabstack.CreateInLocal(name);
+                            id = SymTabStack.CreateInLocal(name);
                         }
 
                         root = ICodeFactory.CreateICodeNode(ICodeNodeType.VARIABLE);
                         root.SetAttribute(ICodeKey.ID, id);
                         id.AppendLine(token.LineNumber);
-                        token = scanner.GetNextToken();
+                        token = InternalScanner.GetNextToken();
                     }
                     break;
                 case TokenType.INTEGER:
                     // create an INTEGER_CONSTANT node as the root node.
                     root = ICodeFactory.CreateICodeNode(ICodeNodeType.INTEGER_CONSTANT);
                     root.SetAttribute(ICodeKey.VALUE, token.Value);
-                    token = scanner.GetNextToken();
+                    token = InternalScanner.GetNextToken();
                     break;
                 case TokenType.REAL:
                     // create a REAL_CONSTANT node as the root node.
                     root = ICodeFactory.CreateICodeNode(ICodeNodeType.REAL_CONSTANT);
                     root.SetAttribute(ICodeKey.VALUE, token.Value);
-                    token = scanner.GetNextToken();
+                    token = InternalScanner.GetNextToken();
                     break;
                 case TokenType.STRING:
                     // create a STRING_CONSTANT node as the root node.
                     root = ICodeFactory.CreateICodeNode(ICodeNodeType.STRING_CONSTANT);
                     root.SetAttribute(ICodeKey.VALUE, token.Value);
-                    token = scanner.GetNextToken();
+                    token = InternalScanner.GetNextToken();
                     break;
                 case TokenType.NOT:
-                    token = scanner.GetNextToken(); // consume NOT
+                    token = InternalScanner.GetNextToken(); // consume NOT
 
                     // create a NOT node as the root node
                     root = ICodeFactory.CreateICodeNode(ICodeNodeType.NOT);
@@ -247,16 +244,16 @@ namespace dradis.frontend
                     root.Add(ParseFactor(token));
                     break;
                 case TokenType.LEFT_PAREN:
-                    token = scanner.GetNextToken(); // consume the (
+                    token = InternalScanner.GetNextToken(); // consume the (
 
                     // parse an expression and make its node the root node.
                     root = ParseExpression(token);
 
                     // look for the matching ) token.
-                    token = scanner.CurrentToken;
+                    token = InternalScanner.CurrentToken;
                     if (token.TokenType == TokenType.RIGHT_PAREN)
                     {
-                        token = scanner.GetNextToken(); // consume the )
+                        token = InternalScanner.GetNextToken(); // consume the )
                     }
                     else
                     {
