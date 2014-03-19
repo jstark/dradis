@@ -128,7 +128,7 @@ namespace dradis
             bool show_help = false;
             bool xref = false;
             bool print_ast = false;
-            string action = "interpret";
+            string action = "compile";
             var names = new List<string>();
 
             var p = new OptionSet()

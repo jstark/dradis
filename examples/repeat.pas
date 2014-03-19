@@ -1,0 +1,19 @@
+BEGIN { REPEAT statements. }
+    i := 0;
+
+    REPEAT
+        j := i;
+        k := i;
+    UNTIL i <= j;
+
+    BEGIN { Calculate the a square root using Newton's method. }
+        number := 4;
+        root := number;
+
+        REPEAT
+            partial := number/root + root;
+            root := partial/2;
+        UNTIL root*root - number < 0.000001;
+    END;
+END.
+
