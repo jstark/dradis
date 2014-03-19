@@ -66,7 +66,7 @@ namespace dradis.frontend
             return Tuple.Create(icode, symtabstack);
         }
 
-        public Token Synchronize(HashSet<TokenType> types)
+        internal static Token Synchronize(HashSet<TokenType> types, Scanner scanner, MessageProducer mp)
         {
             Token tok = scanner.CurrentToken;
 
@@ -75,7 +75,7 @@ namespace dradis.frontend
             if (!types.Contains(tok.TokenType))
             {
                 // flag the unexpected token
-                ErrorHandler.Flag(tok, ErrorCode.UNEXPECTED_TOKEN, this);
+                ErrorHandler.Flag(tok, ErrorCode.UNEXPECTED_TOKEN, mp);
 
                 // recover by skipping tokens that are not in 
                 // the synchronization set.
