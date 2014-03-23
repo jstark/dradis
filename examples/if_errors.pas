@@ -1,0 +1,8 @@
+BEGIN { if syntax errors }
+    i := 0;
+
+    IF i = 5;
+    IF i := 5 ELSE j := 9; 
+    IF i = 5 ELSE j := 9 THEN j := 7;
+END.
+

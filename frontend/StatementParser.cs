@@ -69,6 +69,11 @@ namespace dradis.frontend
                         ForStatementParser.CreateWithObservers(InternalScanner, SymTabStack, Observers);
                     node = for_parser.Parse(token);
                     break;
+                case TokenType.IF:
+                    IfStatementParser if_parser =
+                        IfStatementParser.CreateWithObservers(InternalScanner, SymTabStack, Observers);
+                    node = if_parser.Parse(token);
+                    break;
                 default:
                     node = ICodeFactory.CreateICodeNode(ICodeNodeType.NO_OP);
                     break;
