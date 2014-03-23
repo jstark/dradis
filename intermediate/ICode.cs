@@ -86,6 +86,14 @@ namespace dradis.intermediate
             return val;
         }
 
+        public ICodeNode Copy()
+        {
+            ICodeNode cp = ICodeFactory.CreateICodeNode(this.Type);
+            foreach (var p in attributes)
+                cp.SetAttribute(p.Key, p.Value);
+            return cp;
+        }
+
         public override string ToString()
         {
             return Type.ToString();

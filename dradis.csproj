@@ -74,6 +74,7 @@
     <Compile Include="frontend\ErrorCode.cs" />
     <Compile Include="frontend\ErrorHandler.cs" />
     <Compile Include="frontend\ExpressionParser.cs" />
+    <Compile Include="frontend\ForStatementParser.cs" />
     <Compile Include="frontend\NonTerminalParser.cs" />
     <Compile Include="frontend\Parser.cs" />
     <Compile Include="frontend\RepeatStatementParser.cs" />
