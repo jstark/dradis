@@ -70,6 +70,7 @@
     <Compile Include="backend\RuntimeErrorHandler.cs" />
     <Compile Include="backend\StatementInterpreter.cs" />
     <Compile Include="frontend\AssignmentStatementParser.cs" />
+    <Compile Include="frontend\CaseStatementParser.cs" />
     <Compile Include="frontend\CompoundStatementParser.cs" />
     <Compile Include="frontend\ErrorCode.cs" />
     <Compile Include="frontend\ErrorHandler.cs" />
