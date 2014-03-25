@@ -136,7 +136,7 @@ namespace dradis
                 { "h|help", "show this message and exit", v => show_help = v != null },
                 { "x|xref", "perform a cross-reference of identifiers", v => xref = v != null },
                 { "i|intermediate", "print the parse tree of the input", v => print_ast = v != null },
-                { "a|action", "`compile' or `interpret' the input", v => action = v },
+                { "a|action=", "`compile' or `interpret' the input", v => action = v },
             };
 
             List<string> extra;
@@ -207,7 +207,7 @@ namespace dradis
             {
                 Console.WriteLine("dradis: ");
                 Console.WriteLine("FATAL ERROR: " + ex.Message);
-                Console.WriteLine("Try `dradis --help' for more information.");
+                Console.WriteLine("TRACE: " + ex.StackTrace);
             }
         }
 

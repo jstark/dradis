@@ -22,13 +22,21 @@ namespace dradis.backend
             {
                 case ICodeNodeType.COMPOUND:
                     {
-                        CompoundInterpreter compound_interpreter = CompoundInterpreter.CreateWithObservers(observers);
+                        CompoundInterpreter compound_interpreter = 
+                            CompoundInterpreter.CreateWithObservers(observers);
                         return compound_interpreter.Execute(node, ref exec_count);
                     }
                 case ICodeNodeType.ASSIGN:
                     {
-                        AssignmentInterpreter assign_interpreter = AssignmentInterpreter.CreateWithObservers(observers);
+                        AssignmentInterpreter assign_interpreter = 
+                            AssignmentInterpreter.CreateWithObservers(observers);
                         return assign_interpreter.Execute(node, ref exec_count);
+                    }
+                case ICodeNodeType.LOOP:
+                    {
+                        LoopInterpreter loop_interpreter = 
+                            LoopInterpreter.CreateWithObservers(observers);
+                        return loop_interpreter.Execute(node, ref exec_count);
                     }
                 case ICodeNodeType.NO_OP:
                     return null;
