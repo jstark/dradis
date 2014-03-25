@@ -44,6 +44,12 @@ namespace dradis.backend
                             IfInterpreter.CreateWithObservers(observers);
                         return if_interpreter.Execute(node, ref exec_count);
                     }
+                case ICodeNodeType.SELECT:
+                    {
+                        SelectInterpreter select_interpreter =
+                            SelectInterpreter.CreateWithObservers(observers);
+                        return select_interpreter.Execute(node, ref exec_count);
+                    }
                 case ICodeNodeType.NO_OP:
                     return null;
                 default:
