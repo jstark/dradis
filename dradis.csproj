@@ -65,6 +65,7 @@
     <Compile Include="backend\Compiler.cs" />
     <Compile Include="backend\CompoundInterpreter.cs" />
     <Compile Include="backend\ExpressionInterpreter.cs" />
+    <Compile Include="backend\IfInterpreter.cs" />
     <Compile Include="backend\Interpreter.cs" />
     <Compile Include="backend\LoopInterpreter.cs" />
     <Compile Include="backend\RuntimeErrorCode.cs" />

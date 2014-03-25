@@ -38,6 +38,12 @@ namespace dradis.backend
                             LoopInterpreter.CreateWithObservers(observers);
                         return loop_interpreter.Execute(node, ref exec_count);
                     }
+                case ICodeNodeType.IF:
+                    {
+                        IfInterpreter if_interpreter =
+                            IfInterpreter.CreateWithObservers(observers);
+                        return if_interpreter.Execute(node, ref exec_count);
+                    }
                 case ICodeNodeType.NO_OP:
                     return null;
                 default:
