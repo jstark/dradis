@@ -234,7 +234,7 @@ namespace dradis.backend
                     case ICodeNodeType.LE:
                         return value1 <= value2;
                     case ICodeNodeType.GT:
-                        return value1 < value2;
+                        return value1 > value2;
                     case ICodeNodeType.GE:
                         return value1 <= value2;
                 }
