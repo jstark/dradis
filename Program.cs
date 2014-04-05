@@ -22,7 +22,7 @@ namespace dradis
             if (type == MessageType.SourceLine)
             {
                 var args = (Tuple<int, string>)msg.Args;
-                Console.WriteLine("{0,-3} {1}", args.Item1, args.Item2);
+				Console.WriteLine("{0:D3} {1}", args.Item1, args.Item2);
             }
         }
     }
@@ -127,6 +127,7 @@ namespace dradis
         {
             bool show_help = false;
             bool xref = false;
+			bool syntax_check_only = false;
             bool print_ast = false;
             string action = "interpret";
             var names = new List<string>();
@@ -137,6 +138,7 @@ namespace dradis
                 { "x|xref", "perform a cross-reference of identifiers", v => xref = v != null },
                 { "i|intermediate", "print the parse tree of the input", v => print_ast = v != null },
                 { "a|action", "`compile' or `interpret' the input", v => action = v },
+				{ "s|syntax-only", "will perform only a syntax check", v => syntax_check_only = v != null },
             };
 
             List<string> extra;
@@ -183,6 +185,11 @@ namespace dradis
                     var result = parser.Parse();
                     ICode icode = result.Item1;
                     SymbolTableStack symtabstack = result.Item2;
+
+					if (syntax_check_only)
+					{
+						return;
+					}
 
                     if (xref)
                     {
