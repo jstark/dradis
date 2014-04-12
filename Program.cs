@@ -22,7 +22,7 @@ namespace dradis
             if (type == MessageType.SourceLine)
             {
                 var args = (Tuple<int, string>)msg.Args;
-                Console.WriteLine("{0,-3} {1}", args.Item1, args.Item2);
+                Console.WriteLine("{0:D3} {1}", args.Item1, args.Item2);
             }
         }
     }
@@ -214,9 +214,12 @@ namespace dradis
         private static void ShowHelp(OptionSet p)
         {
             Console.WriteLine("Usage: dradis [OPTIONS]+ file");
+            Console.WriteLine();
             Console.WriteLine("Implemented functionality:");
             Console.WriteLine("1. Checks a pascal source file for invalid tokens.");
             Console.WriteLine("2. Perform a cross-reference of all IDENTIFIER tokens.");
+            Console.WriteLine("3. Prints the AST of the source code. ");
+            Console.WriteLine("4. Interprets (a part of) the source code.");
             Console.WriteLine();
             Console.WriteLine("Options: ");
             p.WriteOptionDescriptions(Console.Out);
