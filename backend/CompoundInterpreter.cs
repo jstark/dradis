@@ -21,7 +21,6 @@ namespace dradis.backend
             foreach (var child in node.GetChildren())
             {
                 stmnt_interpreter.Execute(child, ref exec_count);
-                exec_count += 1;
             }
 
             return null;
