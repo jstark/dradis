@@ -191,7 +191,7 @@ namespace dradis.backend
 
                 switch (node.Type)
                 {
-                    case ICodeNodeType.ADD:
+                    case ICodeNodeType.AND:
                         return value1 && value2;
                     case ICodeNodeType.OR:
                         return value1 || value2;
