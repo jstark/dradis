@@ -181,27 +181,30 @@ namespace dradis
                     parser.Add(parserObserver);
 
                     var result = parser.Parse();
-                    ICode icode = result.Item1;
-                    SymbolTableStack symtabstack = result.Item2;
-
-                    if (xref)
+                    if (parser.ErrorCount > 0)
                     {
-                        XRef.Print(symtabstack);
-                    }
+                        ICode icode = result.Item1;
+                        SymbolTableStack symtabstack = result.Item2;
 
-                    if (print_ast)
-                    {
-                        ParseTreePrinter printer = new ParseTreePrinter(Console.Out);
-                        printer.Print(icode);
-                    }
+                        if (xref)
+                        {
+                            XRef.Print(symtabstack);
+                        }
 
-                    Backend backend = Backend.Create(action);
-                    if (backend == null)
-                    {
-                        throw new Exception("`action' can be either `compile' or 'interpret'!");
+                        if (print_ast)
+                        {
+                            ParseTreePrinter printer = new ParseTreePrinter(Console.Out);
+                            printer.Print(icode);
+                        }
+
+                        Backend backend = Backend.Create(action);
+                        if (backend == null)
+                        {
+                            throw new Exception("`action' can be either `compile' or 'interpret'!");
+                        }
+                        backend.Add(new BackendMessageObserver());
+                        backend.Process(icode, symtabstack);
                     }
-                    backend.Add(new BackendMessageObserver());
-                    backend.Process(icode, symtabstack);
                 }
             } catch(Exception ex)
             {
