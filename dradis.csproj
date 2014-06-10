@@ -88,6 +88,7 @@
     <Compile Include="frontend\StatementParser.cs" />
     <Compile Include="frontend\Token.cs" />
     <Compile Include="frontend\WhileStatementParser.cs" />
+    <Compile Include="intermediate\Definition.cs" />
     <Compile Include="intermediate\ICode.cs" />
     <Compile Include="intermediate\ParseTreePrinter.cs" />
     <Compile Include="intermediate\SymbolTable.cs" />
