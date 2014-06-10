@@ -91,6 +91,7 @@
     <Compile Include="intermediate\ICode.cs" />
     <Compile Include="intermediate\ParseTreePrinter.cs" />
     <Compile Include="intermediate\SymbolTable.cs" />
+    <Compile Include="intermediate\Type.cs" />
     <Compile Include="intermediate\XRef.cs" />
     <Compile Include="message\Message.cs" />
     <Compile Include="Program.cs" />
