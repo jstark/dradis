@@ -51,7 +51,46 @@ namespace dradis.intermediate
 
         public SymbolTableEntry Find(string name)
         {
-            return FindInLocal(name);
+            SymbolTableEntry entry = null;
+
+            // search the current and enclosing scopes.
+            for (int i = NestingLevel; (i >= 0 && entry == null); --i)
+            {
+                entry = stack[i].FindEntry(name);
+            }
+
+            return entry;
+        }
+
+        public SymbolTableEntry ProgramId { get; set; }
+
+        /** 
+         * Push (and return) a new Symbol Table.
+         */
+        public SymbolTable Push()
+        {
+            ++NestingLevel;
+            SymbolTable symtab = SymbolTableFactory.CreateTable(NestingLevel);
+            stack.Add(symtab);
+            return symtab;
+        }
+
+        public SymbolTable Push(SymbolTable symtab)
+        {
+            Contract.Requires(symtab != null);
+            Contract.Requires(stack.Contains(symtab) == false);
+            ++NestingLevel;
+            stack.Add(symtab);
+            return symtab;
+        }
+
+        public SymbolTable Pop()
+        {
+            Contract.Requires(stack.Count > 1);
+            int last = stack.Count - 1;
+            SymbolTable top = stack[last];
+            stack.RemoveAt(last);
+            return top;
         }
     }
 
