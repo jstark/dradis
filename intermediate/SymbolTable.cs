@@ -169,6 +169,9 @@ namespace dradis.intermediate
             attributes.TryGetValue(key, out val);
             return val;
         }
+
+        public Definition Definition { get; set; }
+        public TypeSpec Type { get; set; }
     }
 
     //

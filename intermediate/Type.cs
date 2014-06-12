@@ -27,13 +27,11 @@ namespace dradis.intermediate
     {
         private Dictionary<TypeKey, object> attributes = new Dictionary<TypeKey,object>();
         private TypeForm form;
-        private SymbolTableEntry identifier;
 
         //
         private TypeSpec(TypeForm f)
         {
             form = f;
-            identifier = null;
         }
 
         // 
@@ -51,6 +49,8 @@ namespace dradis.intermediate
             // SetAttribute(TypeKey.ArrayElementType, Predefined.CharType);
             SetAttribute(TypeKey.ArrayElementCount, value.Length);
         }
+
+        public SymbolTableEntry Identifier { get; set; }
 
         public void SetAttribute(TypeKey key, object value)
         {
