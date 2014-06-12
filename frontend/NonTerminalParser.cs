@@ -34,7 +34,7 @@ namespace dradis.frontend
 
         protected NonTerminalParser() { }
 
-        public abstract ICodeNode Parse(Token token);
+        //public abstract ICodeNode Parse(Token token);
 
         protected static T CreateWithObserver<T>(Scanner s, SymbolTableStack stack, List<IMessageObserver> obl) where T : NonTerminalParser, new()
         {

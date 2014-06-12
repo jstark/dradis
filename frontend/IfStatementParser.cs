@@ -20,7 +20,7 @@ namespace dradis.frontend
             THEN_SET.UnionWith(StatementParser.STMT_FOLLOW_SET);
         }
 
-        public override ICodeNode Parse(Token token)
+        public ICodeNode Parse(Token token)
         {
             Token tok = InternalScanner.GetNextToken(); // consume the IF token
 

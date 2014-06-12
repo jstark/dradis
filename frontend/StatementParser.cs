@@ -39,7 +39,7 @@ namespace dradis.frontend
             STMT_FOLLOW_SET.Add(TokenType.DOT);
         }
 
-        public override ICodeNode Parse(Token token)
+        public ICodeNode Parse(Token token)
         {
             ICodeNode node;
             switch (token.TokenType)

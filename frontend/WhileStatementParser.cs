@@ -20,7 +20,7 @@ namespace dradis.frontend
             DO_SET.UnionWith(StatementParser.STMT_FOLLOW_SET);
         }
 
-        public override ICodeNode Parse(Token token)
+        public ICodeNode Parse(Token token)
         {
             token = InternalScanner.GetNextToken(); // consume the WHILE
 

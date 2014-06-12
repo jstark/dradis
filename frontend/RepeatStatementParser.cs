@@ -12,7 +12,7 @@ namespace dradis.frontend
 {
     public class RepeatStatementParser : NonTerminalParser
     {
-        public override ICodeNode Parse(Token token)
+        public ICodeNode Parse(Token token)
         {
             token = InternalScanner.GetNextToken(); // consume the REPEAT
 

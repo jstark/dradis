@@ -13,7 +13,7 @@ namespace dradis.frontend
 {
     public class CompoundStatementParser : NonTerminalParser
     {
-        public override ICodeNode Parse(Token token)
+        public ICodeNode Parse(Token token)
         {
             Contract.Requires(token.TokenType == TokenType.BEGIN);
             // ignore argument !

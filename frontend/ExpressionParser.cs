@@ -80,7 +80,7 @@ namespace dradis.frontend
             };
         }
 
-        public override ICodeNode Parse(Token token)
+        public ICodeNode Parse(Token token)
         {
             return ParseExpression(token);
         }

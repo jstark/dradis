@@ -22,7 +22,7 @@ namespace dradis.frontend
             COLON_EQUALS_SET.UnionWith(StatementParser.STMT_FOLLOW_SET);
         }
 
-        public override ICodeNode Parse(Token token)
+        public ICodeNode Parse(Token token)
         {
             // create the ASSIGN node
             ICodeNode assign_node = ICodeFactory.CreateICodeNode(ICodeNodeType.ASSIGN);
